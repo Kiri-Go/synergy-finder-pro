@@ -10,7 +10,7 @@ import {
   Chip,
 } from '@mui/material';
 
-// Define interfaces
+// --- Added explicit type ---
 interface DecisionMaker {
   name: string;
   title: string;
@@ -81,109 +81,37 @@ interface ResultType {
   };
 }
 
-// Mock data
-const mockResults: ResultType[] = [
-  {
-    id: 1,
-    company1: 'Company A',
-    company2: 'Company B',
-    synergyScore: 85,
-    opportunity: 'Joint venture in renewable energy',
-    industries: ['Energy', 'Technology'],
-    potentialValue: 'High',
-    predictability: {
-      company1Openness: {
-        jointVenture: 90,
-        acquisition: 40,
-        strategicAlliance: 70,
-      },
-      company2Openness: {
-        jointVenture: 85,
-        acquisition: 50,
-        strategicAlliance: 75,
-      },
-      overallLikelihood: 82,
-      indicators: ['Shared values', 'Complementary assets'],
-    },
-    decisionMakers: {
-      company1: [
-        {
-          name: 'Alice Johnson',
-          title: 'VP of Strategy',
-          department: 'Corporate Strategy',
-          availability: 80,
-          engagement: 70,
-          influence: 90,
-          lastActivity: '2023-10-01',
-          recentSignals: ['Attended industry summit', 'Commented on sustainability'],
-          contactPreference: 'Email',
-          networkConnections: 50,
-          communicationStyle: 'Data-driven',
-        },
-      ],
-      company2: [
-        {
-          name: 'Bob Smith',
-          title: 'Chief Innovation Officer',
-          department: 'R&D',
-          availability: 70,
-          engagement: 80,
-          influence: 85,
-          lastActivity: '2023-10-03',
-          recentSignals: ['Published a white paper', 'Increased LinkedIn activity'],
-          contactPreference: 'Phone',
-          networkConnections: 60,
-          communicationStyle: 'Visionary',
-        },
-      ],
-    },
-    forecastedOutcomes: {
-      jointVenture: {
-        revenueGrowth: '25%',
-        marketShare: '15%',
-        costSynergies: '10%',
-        timeToValue: '1 year',
-        riskLevel: 'Medium',
-      },
-      acquisition: {
-        revenueGrowth: '35%',
-        marketShare: '20%',
-        costSynergies: '20%',
-        timeToValue: '2 years',
-        riskLevel: 'High',
-      },
-      strategicAlliance: {
-        revenueGrowth: '20%',
-        marketShare: '10%',
-        costSynergies: '8%',
-        timeToValue: '1.5 years',
-        riskLevel: 'Low',
-      },
-    },
-    complementarity: {
-      company1Strengths: ['Advanced technology', 'Strong brand'],
-      company2Strengths: ['Large distribution network', 'Innovative R&D'],
-      gaps: ['Customer service alignment'],
-    },
-  },
-];
-
-const SynergyFinderApp: React.FC = () => {
+const SynergyFinderApp = () => {
   const [companyInput, setCompanyInput] = useState('');
-  const [results, setResults] = useState<ResultType[]>([]);
+  const [results, setResults] = useState<ResultType[]>([]); // ✅ Fixed here
   const [selectedOpportunities, setSelectedOpportunities] = useState<ResultType[]>([]);
+  const [showModal, setShowModal] = useState(false);
+  const [modalContent, setModalContent] = useState<ResultType | null>(null);
 
   const handleSearch = () => {
     setResults(mockResults);
   };
-
-  const toggleSelection = (item: ResultType, list: ResultType[], setList: React.Dispatch<React.SetStateAction<ResultType[]>>) => {
-    const exists = list.find(i => i.id === item.id);
+  const toggleSelection = (
+    item: ResultType,
+    list: ResultType[],
+    setList: React.Dispatch<React.SetStateAction<ResultType[]>>
+  ) => {
+    const exists = list.find((i) => i.id === item.id);
     if (exists) {
-      setList(list.filter(i => i.id !== item.id));
+      setList(list.filter((i) => i.id !== item.id));
     } else {
       setList([...list, item]);
     }
+  };
+
+  const handleCardClick = (item: ResultType) => {
+    setModalContent(item);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setModalContent(null);
   };
 
   return (
@@ -206,18 +134,17 @@ const SynergyFinderApp: React.FC = () => {
         {results.map((result) => (
           <Grid item xs={12} md={6} key={result.id}>
             <Card
-              onClick={() =>
-                toggleSelection(result, selectedOpportunities, setSelectedOpportunities)
-              }
+              onClick={() => handleCardClick(result)}
               style={{
                 backgroundColor: selectedOpportunities.find((i) => i.id === result.id)
                   ? '#e0f7fa'
                   : 'white',
+                cursor: 'pointer',
               }}
             >
               <CardContent>
                 <Typography variant="h6">
-                  {result.company1} &amp; {result.company2}
+                  {result.company1} & {result.company2}
                 </Typography>
                 <Typography>Opportunity: {result.opportunity}</Typography>
                 <Typography>Score: {result.synergyScore}</Typography>
@@ -237,6 +164,122 @@ const SynergyFinderApp: React.FC = () => {
           </Grid>
         ))}
       </Grid>
+
+      {showModal && modalContent && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+          }}
+          onClick={handleCloseModal}
+        >
+          <div
+            style={{
+              backgroundColor: 'white',
+              padding: '20px',
+              borderRadius: '8px',
+              width: '80%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Typography variant="h5" gutterBottom>
+              {modalContent.company1} & {modalContent.company2}
+            </Typography>
+            <Typography variant="subtitle1">Opportunity: {modalContent.opportunity}</Typography>
+            <Typography variant="subtitle2" style={{ marginTop: '10px' }}>
+              Synergy Score: {modalContent.synergyScore}
+            </Typography>
+            <Typography>Potential Value: {modalContent.potentialValue}</Typography>
+
+            <Typography variant="h6" style={{ marginTop: '20px' }}>
+              Predictability
+            </Typography>
+            <Typography>Overall Likelihood: {modalContent.predictability.overallLikelihood}</Typography>
+            <ul>
+              {modalContent.predictability.indicators.map((indicator, i) => (
+                <li key={i}>{indicator}</li>
+              ))}
+            </ul>
+
+            <Typography variant="h6" style={{ marginTop: '20px' }}>
+              Forecasted Outcomes
+            </Typography>
+            {Object.entries(modalContent.forecastedOutcomes).map(([type, outcome]) => (
+              <div key={type}>
+                <Typography variant="subtitle1">{type}</Typography>
+                <ul>
+                  {Object.entries(outcome).map(([key, value]) => (
+                    <li key={key}>
+                      {key}: {value}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+
+            <Typography variant="h6" style={{ marginTop: '20px' }}>
+              Complementarity
+            </Typography>
+            <Typography>Company 1 Strengths:</Typography>
+            <ul>
+              {modalContent.complementarity.company1Strengths.map((s, i) => (
+                <li key={i}>{s}</li>
+              ))}
+            </ul>
+            <Typography>Company 2 Strengths:</Typography>
+            <ul>
+              {modalContent.complementarity.company2Strengths.map((s, i) => (
+                <li key={i}>{s}</li>
+              ))}
+            </ul>
+            <Typography>Gaps:</Typography>
+            <ul>
+              {modalContent.complementarity.gaps.map((s, i) => (
+                <li key={i}>{s}</li>
+              ))}
+            </ul>
+
+            <Typography variant="h6" style={{ marginTop: '20px' }}>
+              Decision Makers
+            </Typography>
+            {['company1', 'company2'].map((companyKey) => (
+              <div key={companyKey}>
+                <Typography variant="subtitle1">{companyKey}</Typography>
+                {modalContent.decisionMakers[companyKey as 'company1' | 'company2'].map((dm, i) => (
+                  <div key={i}>
+                    <Typography>{dm.name} - {dm.title}</Typography>
+                    <Typography>Department: {dm.department}</Typography>
+                    <Typography>Availability: {dm.availability}%</Typography>
+                    <Typography>Engagement: {dm.engagement}%</Typography>
+                    <Typography>Influence: {dm.influence}%</Typography>
+                    <Typography>Last Activity: {dm.lastActivity}</Typography>
+                    <Typography>Contact Preference: {dm.contactPreference}</Typography>
+                    <Typography>Communication Style: {dm.communicationStyle}</Typography>
+                    <Typography>Network Connections: {dm.networkConnections}</Typography>
+                    <Typography>Recent Signals:</Typography>
+                    <ul>
+                      {dm.recentSignals.map((sig, j) => (
+                        <li key={j}>{sig}</li>
+                      ))}
+                    </ul>
+                    <hr />
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </Container>
   );
 };
