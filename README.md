@@ -1,0 +1,1 @@
+# synergy-finder-pro
