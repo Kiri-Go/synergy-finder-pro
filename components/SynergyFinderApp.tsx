@@ -16,6 +16,17 @@ interface DecisionMaker {
   communicationStyle: string;
 }
 
+// Define the deal type keys
+type DealType = 'jointVenture' | 'acquisition' | 'strategicAlliance';
+
+interface ForecastedOutcome {
+  revenueGrowth: string;
+  marketShare: string;
+  costSynergies: string;
+  timeToValue: string;
+  riskLevel: string;
+}
+
 interface Result {
   id: number;
   company1: string;
@@ -42,29 +53,7 @@ interface Result {
     company1: DecisionMaker[];
     company2: DecisionMaker[];
   };
-  forecastedOutcomes: {
-    jointVenture: {
-      revenueGrowth: string;
-      marketShare: string;
-      costSynergies: string;
-      timeToValue: string;
-      riskLevel: string;
-    };
-    acquisition: {
-      revenueGrowth: string;
-      marketShare: string;
-      costSynergies: string;
-      timeToValue: string;
-      riskLevel: string;
-    };
-    strategicAlliance: {
-      revenueGrowth: string;
-      marketShare: string;
-      costSynergies: string;
-      timeToValue: string;
-      riskLevel: string;
-    };
-  };
+  forecastedOutcomes: Record<DealType, ForecastedOutcome>;
   complementarity: {
     company1Strengths: string[];
     company2Strengths: string[];
@@ -78,7 +67,7 @@ const SynergyFinderApp = () => {
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
   const [results, setResults] = useState<Result[]>([]);
-  const [selectedDealType, setSelectedDealType] = useState<string>('jointVenture');
+  const [selectedDealType, setSelectedDealType] = useState<DealType>('jointVenture');
   const [expandedDecisionMakers, setExpandedDecisionMakers] = useState<{[key: string]: boolean}>({});
 
   const industries = [
@@ -889,9 +878,9 @@ const SynergyFinderApp = () => {
                         {/* Deal Type Selector */}
                         <div className="flex gap-2 mb-6">
                           {[
-                            { key: 'jointVenture', label: 'Joint Venture', color: 'green' },
-                            { key: 'acquisition', label: 'Acquisition', color: 'yellow' },
-                            { key: 'strategicAlliance', label: 'Strategic Alliance', color: 'purple' }
+                            { key: 'jointVenture' as DealType, label: 'Joint Venture', color: 'green' },
+                            { key: 'acquisition' as DealType, label: 'Acquisition', color: 'yellow' },
+                            { key: 'strategicAlliance' as DealType, label: 'Strategic Alliance', color: 'purple' }
                           ].map((dealType) => (
                             <button
                               key={dealType.key}
