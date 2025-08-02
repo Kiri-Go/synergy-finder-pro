@@ -1,14 +1,85 @@
 import React, { useState } from 'react';
 import { Search, Building2, TrendingUp, Users, Globe, Database, BarChart3, Target, Zap, Filter, Download, Eye, Activity, Percent, Clock, AlertTriangle, CheckCircle, User, Phone, Mail, Calendar, MessageCircle, UserCheck } from 'lucide-react';
 
+// TypeScript interfaces
+interface DecisionMaker {
+  name: string;
+  title: string;
+  department: string;
+  availability: number;
+  engagement: number;
+  influence: number;
+  lastActivity: string;
+  recentSignals: string[];
+  contactPreference: string;
+  networkConnections: number;
+  communicationStyle: string;
+}
+
+interface Result {
+  id: number;
+  company1: string;
+  company2: string;
+  synergyScore: number;
+  opportunity: string;
+  industries: string[];
+  potentialValue: string;
+  predictability: {
+    company1Openness: {
+      jointVenture: number;
+      acquisition: number;
+      strategicAlliance: number;
+    };
+    company2Openness: {
+      jointVenture: number;
+      acquisition: number;
+      strategicAlliance: number;
+    };
+    overallLikelihood: number;
+    indicators: string[];
+  };
+  decisionMakers: {
+    company1: DecisionMaker[];
+    company2: DecisionMaker[];
+  };
+  forecastedOutcomes: {
+    jointVenture: {
+      revenueGrowth: string;
+      marketShare: string;
+      costSynergies: string;
+      timeToValue: string;
+      riskLevel: string;
+    };
+    acquisition: {
+      revenueGrowth: string;
+      marketShare: string;
+      costSynergies: string;
+      timeToValue: string;
+      riskLevel: string;
+    };
+    strategicAlliance: {
+      revenueGrowth: string;
+      marketShare: string;
+      costSynergies: string;
+      timeToValue: string;
+      riskLevel: string;
+    };
+  };
+  complementarity: {
+    company1Strengths: string[];
+    company2Strengths: string[];
+    gaps: string[];
+  };
+}
+
 const SynergyFinderApp = () => {
-  const [activeTab, setActiveTab] = useState('search');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedIndustries, setSelectedIndustries] = useState([]);
-  const [selectedMetrics, setSelectedMetrics] = useState([]);
-  const [results, setResults] = useState([]);
-  const [selectedDealType, setSelectedDealType] = useState('jointVenture');
-  const [expandedDecisionMakers, setExpandedDecisionMakers] = useState({});
+  const [activeTab, setActiveTab] = useState<string>('search');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedIndustries, setSelectedIndustries] = useState<string[]>([]);
+  const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
+  const [results, setResults] = useState<Result[]>([]);
+  const [selectedDealType, setSelectedDealType] = useState<string>('jointVenture');
+  const [expandedDecisionMakers, setExpandedDecisionMakers] = useState<{[key: string]: boolean}>({});
 
   const industries = [
     'Technology', 'Healthcare', 'Finance', 'Manufacturing', 'Retail',
@@ -20,7 +91,7 @@ const SynergyFinderApp = () => {
     'Customer Base', 'Supply Chain', 'Technology Stack', 'Brand Value'
   ];
 
-  const mockResults = [
+  const mockResults: Result[] = [
     {
       id: 1,
       company1: 'TechFlow Solutions',
@@ -267,11 +338,11 @@ const SynergyFinderApp = () => {
     }
   ];
 
-  const handleSearch = () => {
+  const handleSearch = (): void => {
     setResults(mockResults);
   };
 
-  const toggleSelection = (item: string, list: string[], setList: React.Dispatch<React.SetStateAction<string[]>>) => {
+  const toggleSelection = (item: string, list: string[], setList: React.Dispatch<React.SetStateAction<string[]>>): void => {
     setList(prev => 
       prev.includes(item) 
         ? prev.filter(i => i !== item)
@@ -279,7 +350,7 @@ const SynergyFinderApp = () => {
     );
   };
 
-  const toggleDecisionMakers = (resultId: number, company: string) => {
+  const toggleDecisionMakers = (resultId: number, company: string): void => {
     const key = `${resultId}-${company}`;
     setExpandedDecisionMakers(prev => ({
       ...prev,
@@ -287,13 +358,13 @@ const SynergyFinderApp = () => {
     }));
   };
 
-  const getAvailabilityColor = (score: number) => {
+  const getAvailabilityColor = (score: number): string => {
     if (score >= 80) return 'text-green-400';
     if (score >= 60) return 'text-yellow-400';
     return 'text-red-400';
   };
 
-  const getEngagementColor = (score: number) => {
+  const getEngagementColor = (score: number): string => {
     if (score >= 85) return 'text-purple-400';
     if (score >= 70) return 'text-blue-400';
     return 'text-orange-400';
